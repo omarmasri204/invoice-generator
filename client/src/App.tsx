@@ -68,8 +68,8 @@ const defaultInvoiceData: InvoiceData = {
   companyInfo: {
     name: 'MANAL CATERING',
     manager: 'منال مصري',
-    logo: 'https://i.ibb.co/N2XvW6XB/manal-catering.png',
-    stamp: 'https://i.ibb.co/gLQ7Ynsm/Sticker-V2-1.png'
+    logo: '/images/logo.png',
+    stamp: '/images/stamp.png'
   },
   invoiceInfo: {
     number: '202430600',
@@ -133,8 +133,8 @@ function App() {
             ...prevData,
             companyInfo: {
               ...prevData.companyInfo,
-              logo: logo ? `${API_BASE_URL}${logo.url}` : null,
-              stamp: stamp ? `${API_BASE_URL}${stamp.url}` : null
+              logo: '/images/logo.png',
+              stamp: '/images/stamp.png'
             }
           }));
         }
@@ -155,10 +155,10 @@ function App() {
   if (isLoading) {
     return (
       <AppContainer>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
           height: '100vh',
           color: 'white',
           fontSize: '1.2rem'
@@ -175,12 +175,12 @@ function App() {
         <Title>منشئ الفواتير</Title>
         {/* <Subtitle>Invoice Generator - Create Professional Arabic Invoices</Subtitle> */}
       </Header>
-      
+
       <MainContent>
         <FormSection>
-          <InvoiceForm 
-            invoiceData={invoiceData} 
-            onDataChange={handleInvoiceDataChange} 
+          <InvoiceForm
+            invoiceData={invoiceData}
+            onDataChange={handleInvoiceDataChange}
           />
         </FormSection>
         <PreviewSection>

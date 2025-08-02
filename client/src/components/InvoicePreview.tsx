@@ -17,7 +17,9 @@ const InvoiceContainer = styled.div`
   height: 297mm;
   background: white;
   margin: 0 auto;
+  margin-top: 10px;
   padding: 20mm;
+  padding-top: 10px;
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
   position: relative;
   font-family: 'Cairo', 'Noto Naskh Arabic', sans-serif;
@@ -38,11 +40,12 @@ const LogoSection = styled.div`
   flex-direction: column;
   align-items: flex-start;
   order: 1; /* Force logo to be first (left side) */
+  flex: 1;
 `;
 
 const Logo = styled.div`
-  width: 80px;
-  height: 80px;
+  width: 180px;
+  height: 120px;
   background: #8B4513;
   border-radius: 50%;
   display: flex;
@@ -81,18 +84,20 @@ const ManagerInfo = styled.p`
   font-size: 0.9rem;
   color: #666;
   margin: 5px 0;
-  margin-left: 25px;
+  margin-left: 30px;
 `;
 
 const InvoiceInfo = styled.div`
   text-align: right;
   order: 2; /* Force invoice info to be second (right side) */
+  flex: 1;
 `;
 
 const InvoiceNumber = styled.div`
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 5px;
+  margin-top: 40px;
 `;
 
 const InvoiceDate = styled.div`
@@ -378,7 +383,13 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
               <img 
                 src={invoiceData.companyInfo.logo} 
                 alt="Logo" 
-                style={{ width: '180px', height: '120px', marginBottom: '10px' }}
+                style={{ 
+                  width: '200px', 
+                  height: '180px', 
+                  marginBottom: '15px',
+                  display: 'block',
+                  // margin: '0 auto 15px auto'
+                }}
               />
             ) : (
               <Logo />
