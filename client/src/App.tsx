@@ -7,7 +7,7 @@ import { InvoiceData } from './types/invoice';
 import Login from './components/Login';
 
 // API base URL - use environment variable or fallback to localhost
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 const AppContainer = styled.div`
   min-height: 100vh;
