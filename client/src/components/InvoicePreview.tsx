@@ -31,7 +31,6 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 30px;
   direction: ltr; /* Force left-to-right for header layout */
 `;
 
@@ -84,7 +83,9 @@ const ManagerInfo = styled.p`
   font-size: 0.9rem;
   color: #666;
   margin: 5px 0;
-  margin-left: 30px;
+  margin-left: 35px;
+  position: relative;
+  top: -50px;
 `;
 
 const InvoiceInfo = styled.div`
@@ -295,10 +296,10 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
 
     try {
       console.log('Starting PDF generation...');
-      
+
       // Wait a bit for any pending renders
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       const canvas = await html2canvas(invoiceRef.current, {
         scale: 2,
         useCORS: true,
@@ -317,31 +318,31 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = 210;
       const pageHeight = 297;
-      
+
       // Calculate image dimensions to fit on one page
       const imgWidth = pageWidth - 20; // 10mm margin on each side
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
+
       console.log('PDF dimensions - width:', imgWidth, 'height:', imgHeight);
 
       // Always fit to one page
       const scale = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
       const finalWidth = imgWidth * scale;
       const finalHeight = imgHeight * scale;
-      
+
       // Center the image on the page
       const x = (pageWidth - finalWidth) / 2;
       const y = (pageHeight - finalHeight) / 2;
-      
+
       pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
 
       const filename = `invoice-${invoiceData.invoiceInfo.number}.pdf`;
       console.log('Saving PDF as:', filename);
-      
+
       // Create blob and trigger download
       const pdfBlob = pdf.output('blob');
       const blobUrl = URL.createObjectURL(pdfBlob);
-      
+
       // Create download link and trigger download
       const downloadLink = document.createElement('a');
       downloadLink.href = blobUrl;
@@ -349,13 +350,13 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
       downloadLink.style.display = 'none';
       document.body.appendChild(downloadLink);
       downloadLink.click();
-      
+
       // Clean up
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(blobUrl);
-      
+
       console.log('PDF saved successfully');
-      
+
     } catch (error) {
       console.error('PDF generation failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -374,18 +375,18 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
           تحميل PDF
         </Button>
       </ActionButtons>
-      
+
       <InvoiceContainer ref={invoiceRef}>
         {/* Header - Logo on LEFT, Invoice info on RIGHT */}
         <Header>
           <LogoSection>
             {invoiceData.companyInfo.logo ? (
-              <img 
-                src={invoiceData.companyInfo.logo} 
-                alt="Logo" 
-                style={{ 
-                  width: '200px', 
-                  height: '180px', 
+              <img
+                src={invoiceData.companyInfo.logo}
+                alt="Logo"
+                style={{
+                  width: '200px',
+                  height: '180px',
                   marginBottom: '15px',
                   display: 'block',
                   // margin: '0 auto 15px auto'
@@ -448,9 +449,9 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
 
           <StampSection>
             {invoiceData.companyInfo.stamp ? (
-              <img 
-                src={invoiceData.companyInfo.stamp} 
-                alt="Stamp" 
+              <img
+                src={invoiceData.companyInfo.stamp}
+                alt="Stamp"
                 style={{ width: '280px', height: '280px' }}
               />
             ) : (
