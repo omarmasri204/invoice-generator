@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { InvoiceData, ServiceEntry } from '../types/invoice';
-import { FiUpload, FiPlus, FiTrash2, FiDownload } from 'react-icons/fi';
-import axios from 'axios';
-
-// API base URL - use environment variable or fallback to localhost
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+import { FiPlus, FiTrash2 } from 'react-icons/fi';
 
 const FormContainer = styled.div`
   padding: 30px;
@@ -68,56 +64,24 @@ const TextArea = styled.textarea`
   }
 `;
 
-const FileUpload = styled.div`
-  border: 2px dashed #667eea;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background-color: #f8f9ff;
-    border-color: #5a6fd8;
-  }
-`;
-
-const UploadIcon = styled(FiUpload)`
-  font-size: 2rem;
-  color: #667eea;
-  margin-bottom: 10px;
-`;
-
-const UploadText = styled.p`
-  color: #666;
-  margin-bottom: 5px;
-`;
-
-const UploadHint = styled.small`
-  color: #999;
-`;
-
 const ServicesTable = styled.div`
   border: 1px solid #e1e5e9;
   border-radius: 8px;
   overflow: hidden;
+  margin-bottom: 20px;
 `;
 
 const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 60px;
-  background-color: #f8f9fa;
-  font-weight: 600;
+  background: #f8f9fa;
   padding: 12px;
+  font-weight: 600;
   border-bottom: 1px solid #e1e5e9;
+  text-align: center;
 `;
 
 const TableRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 60px;
-  padding: 12px;
+  display: flex;
   border-bottom: 1px solid #e1e5e9;
-  align-items: center;
   
   &:last-child {
     border-bottom: none;
@@ -125,7 +89,15 @@ const TableRow = styled.div`
 `;
 
 const TableCell = styled.div`
-  padding: 0 8px;
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:first-child {
+    flex: 0.5;
+  }
 `;
 
 const NumberInput = styled.input`
@@ -181,8 +153,18 @@ const ButtonGroup = styled.div`
   margin-top: 20px;
 `;
 
-const AddButton = styled(Button)`
+const AddButton = styled.button`
   background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
   
   &:hover {
     background: #218838;
@@ -190,26 +172,16 @@ const AddButton = styled(Button)`
 `;
 
 const RemoveButton = styled.button`
-  background: none;
+  background: #dc3545;
+  color: white;
   border: none;
-  color: #dc3545;
-  cursor: pointer;
-  padding: 4px;
+  padding: 4px 8px;
   border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
   
   &:hover {
-    background: #f8d7da;
-  }
-`;
-
-const ImagePreview = styled.div`
-  margin-top: 10px;
-  
-  img {
-    max-width: 100px;
-    max-height: 100px;
-    border-radius: 8px;
-    border: 2px solid #e1e5e9;
+    background: #c82333;
   }
 `;
 
@@ -219,12 +191,14 @@ interface InvoiceFormProps {
 }
 
 const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceData, onDataChange }) => {
-  const [uploading, setUploading] = useState<string | null>(null);
-
   const updateField = (section: keyof InvoiceData, field: string, value: any) => {
-    const newData = { ...invoiceData };
-    (newData[section] as any)[field] = value;
-    onDataChange(newData);
+    onDataChange({
+      ...invoiceData,
+      [section]: {
+        ...invoiceData[section],
+        [field]: value
+      }
+    });
   };
 
   const updateService = (index: number, field: keyof ServiceEntry, value: any) => {
@@ -249,29 +223,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceData, onDataChange }) 
     const newData = { ...invoiceData };
     newData.services.splice(index, 1);
     onDataChange(newData);
-  };
-
-  const handleFileUpload = async (type: 'logo' | 'stamp', file: File) => {
-    setUploading(type);
-    try {
-      const formData = new FormData();
-      formData.append(type, file);
-      
-      const response = await axios.post(`${API_BASE_URL}/api/upload-${type}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
-      if (response.data.success) {
-        // Use the full server URL for the uploaded file
-        const fullUrl = `${API_BASE_URL}${response.data.fileUrl}`;
-        updateField('companyInfo', type, fullUrl);
-      }
-    } catch (error) {
-      console.error('Upload failed:', error);
-      alert('فشل في رفع الملف');
-    } finally {
-      setUploading(null);
-    }
   };
 
   const calculateTotal = () => {
@@ -314,52 +265,31 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceData, onDataChange }) 
           />
         </FormGroup>
 
+        {/* Logo and Stamp are now static - no upload needed */}
         <FormGroup>
           <Label>الشعار</Label>
-          <FileUpload onClick={() => document.getElementById('logo-upload')?.click()}>
-            <UploadIcon />
-            <UploadText>اضغط لرفع الشعار</UploadText>
-            <UploadHint>PNG, JPG, SVG - الحد الأقصى 5MB</UploadHint>
-            <input
-              id="logo-upload"
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileUpload('logo', file);
-              }}
-            />
-          </FileUpload>
-          {invoiceData.companyInfo.logo && (
-            <ImagePreview>
-              <img src={invoiceData.companyInfo.logo} alt="Logo" />
-            </ImagePreview>
-          )}
+          <div style={{ 
+            padding: '10px', 
+            background: '#f8f9fa', 
+            borderRadius: '8px',
+            textAlign: 'center',
+            color: '#666'
+          }}>
+            الشعار ثابت - لا يمكن تغييره
+          </div>
         </FormGroup>
 
         <FormGroup>
           <Label>الختم</Label>
-          <FileUpload onClick={() => document.getElementById('stamp-upload')?.click()}>
-            <UploadIcon />
-            <UploadText>اضغط لرفع الختم</UploadText>
-            <UploadHint>PNG, JPG, SVG - الحد الأقصى 5MB</UploadHint>
-            <input
-              id="stamp-upload"
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileUpload('stamp', file);
-              }}
-            />
-          </FileUpload>
-          {invoiceData.companyInfo.stamp && (
-            <ImagePreview>
-              <img src={invoiceData.companyInfo.stamp} alt="Stamp" />
-            </ImagePreview>
-          )}
+          <div style={{ 
+            padding: '10px', 
+            background: '#f8f9fa', 
+            borderRadius: '8px',
+            textAlign: 'center',
+            color: '#666'
+          }}>
+            الختم ثابت - لا يمكن تغييره
+          </div>
         </FormGroup>
       </Section>
 
