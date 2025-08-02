@@ -9,35 +9,20 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration for production
-const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? [
-      'https://manal-catering.vercel.app',
-      'https://*.vercel.app',
-      'https://railway.com',
-      process.env.FRONTEND_URL // Allow custom frontend URL from environment
-    ].filter(Boolean) // Remove undefined values
-  : ['http://localhost:3000'];
+const allowedOrigins = [
+  'https://manal-catering.vercel.app',
+  // Add more domains here if needed
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    console.log('CORS check: incoming origin =', origin);
     if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-      if (allowedOrigin.includes('*')) {
-        // Handle wildcard domains like *.vercel.app
-        const pattern = allowedOrigin.replace('*', '.*');
-        return new RegExp(pattern).test(origin);
-      }
-      return allowedOrigin === origin;
-    });
-    
-    if (isAllowed) {
-      callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      return callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
