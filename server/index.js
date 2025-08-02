@@ -15,7 +15,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: true, // Allow all origins
+  origin: 'https://manal-catering.vercel.app', // Only allow your Vercel frontend
   credentials: true,
   optionsSuccessStatus: 200
 };
