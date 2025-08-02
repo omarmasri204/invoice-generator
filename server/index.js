@@ -3,25 +3,47 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration for production
-const allowedOrigins = [
-  'https://manal-catering.vercel.app',
-  // Add more domains here if needed
-];
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? [
+      'https://manal-catering.vercel.app',
+      'https://*.vercel.app',
+      'https://railway.com',
+      process.env.FRONTEND_URL // Allow custom frontend URL from environment
+    ].filter(Boolean) // Remove undefined values
+  : ['http://localhost:3000'];
 
 const corsOptions = {
-  origin: 'https://manal-catering.vercel.app', // Only allow your Vercel frontend
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (allowedOrigin.includes('*')) {
+        // Handle wildcard domains like *.vercel.app
+        const pattern = allowedOrigin.replace('*', '.*');
+        return new RegExp(pattern).test(origin);
+      }
+      return allowedOrigin === origin;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
-app.use(cookieParser());
 
 // File storage configuration
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -71,45 +93,6 @@ const upload = multer({
 
 // Serve static files
 app.use('/uploads', express.static(uploadsDir));
-
-// Static credentials
-const STATIC_USER = 'Omar';
-const STATIC_PASS = 'Omar-2004';
-
-// Middleware to protect routes
-function requireAuth(req, res, next) {
-  if (req.cookies && req.cookies.auth_token === 'authenticated') {
-    return next();
-  }
-  res.status(401).json({ error: 'Unauthorized' });
-}
-
-// Login endpoint
-app.post('/login', express.json(), (req, res) => {
-  const { username, password } = req.body;
-  if (username === STATIC_USER && password === STATIC_PASS) {
-    // Set HTTP-only cookie
-    res.cookie('auth_token', 'authenticated', {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: false, // Set to true if using HTTPS
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
-    return res.json({ success: true });
-  }
-  res.status(401).json({ error: 'Invalid credentials' });
-});
-
-// Logout endpoint
-app.post('/logout', (req, res) => {
-  res.clearCookie('auth_token');
-  res.json({ success: true });
-});
-
-// Example protected route
-app.get('/protected', requireAuth, (req, res) => {
-  res.json({ message: 'This is protected data.' });
-});
 
 // Routes
 app.post('/api/upload-logo', upload.single('logo'), (req, res) => {
