@@ -4,19 +4,20 @@ import axios from 'axios';
 import InvoiceForm from './components/InvoiceForm';
 import InvoicePreview from './components/InvoicePreview';
 import { InvoiceData } from './types/invoice';
+import Login from './components/Login';
 
 // API base URL - use environment variable or fallback to localhost
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const AppContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg,rgb(194, 194, 194) 0%,rgb(137, 137, 137) 100%);
   padding: 20px;
 `;
 
 const Header = styled.header`
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   color: white;
 `;
 
@@ -32,8 +33,20 @@ const Subtitle = styled.p`
   opacity: 0.9;
 `;
 
+const LogoutButton = styled.button`
+  margin: 10px 10px;
+  padding: 6px 5px;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+`;
+
 const MainContent = styled.main`
-  max-width: 95vw;
+  max-width: 98vw;
   margin: 0 auto;
   display: flex;
   flex-direction: row;
@@ -53,7 +66,7 @@ const MainContent = styled.main`
 const FormSection = styled.div`
   flex: 1;
   min-width: 350px;
-  max-width: 500px;
+  max-width: 700px;
   border-right: 1px solid #e1e5e9;
   overflow-y: auto;
 `;
@@ -72,7 +85,7 @@ const defaultInvoiceData: InvoiceData = {
     stamp: '/images/stamp.png'
   },
   invoiceInfo: {
-    number: '202430600',
+    number: '202430xxx',
     date: new Date().toISOString().split('T')[0]
   },
   clientInfo: {
@@ -85,30 +98,6 @@ const defaultInvoiceData: InvoiceData = {
       lunchMeals: 11,
       price: 1240000
     },
-    {
-      date: '7/28',
-      breakfastMeals: 11,
-      lunchMeals: 11,
-      price: 1265000
-    },
-    {
-      date: '7/29',
-      breakfastMeals: 11,
-      lunchMeals: 11,
-      price: 1265000
-    },
-    {
-      date: '7/30',
-      breakfastMeals: 11,
-      lunchMeals: 9,
-      price: 1085000
-    },
-    {
-      date: '7/31',
-      breakfastMeals: 9,
-      lunchMeals: 12,
-      price: 1305000
-    }
   ],
   summary: {
     discount: 10000,
@@ -122,6 +111,22 @@ const defaultInvoiceData: InvoiceData = {
 function App() {
   const [invoiceData, setInvoiceData] = useState<InvoiceData>(defaultInvoiceData);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get(`${API_BASE_URL}/protected`, { withCredentials: true });
+        setIsAuthenticated(true);
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   // Load stored files from server on component mount
   useEffect(() => {
@@ -154,6 +159,15 @@ function App() {
     setInvoiceData(newData);
   };
 
+  const handleLogout = async () => {
+    setIsLoading(true);
+    try {
+      await axios.post(`${API_BASE_URL}/logout`, {}, { withCredentials: true });
+    } catch {}
+    setIsAuthenticated(false);
+    setIsLoading(false);
+  };
+
   if (isLoading) {
     return (
       <AppContainer>
@@ -171,15 +185,34 @@ function App() {
     );
   }
 
+  if (!isAuthenticated) {
+    return (
+      <AppContainer>
+        <Login onLoginSuccess={async () => {
+          setIsLoading(true);
+          try {
+            await axios.get(`${API_BASE_URL}/protected`, { withCredentials: true });
+            setIsAuthenticated(true);
+          } catch {
+            setIsAuthenticated(false);
+          } finally {
+            setIsLoading(false);
+          }
+        }} />
+      </AppContainer>
+    );
+  }
+
   return (
     <AppContainer>
       <Header>
-        <Title>منشئ الفواتير</Title>
+        {/* <Title>منشئ الفواتير</Title> */}
         {/* <Subtitle>Invoice Generator - Create Professional Arabic Invoices</Subtitle> */}
       </Header>
 
       <MainContent>
         <FormSection>
+        <LogoutButton onClick={handleLogout}>تسجيل الخروج</LogoutButton>
           <InvoiceForm
             invoiceData={invoiceData}
             onDataChange={handleInvoiceDataChange}

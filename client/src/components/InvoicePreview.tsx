@@ -161,6 +161,7 @@ const SummaryRow = styled.div`
   display: flex;
   border-bottom: 1px solid #ddd;
   white-space: nowrap;
+  justify-content: space-between;
   
   &:last-child {
     border-bottom: none;
@@ -171,7 +172,7 @@ const SummaryLabel = styled.div`
   background: #f8f9fa;
   padding: 10px 15px;
   font-weight: 600;
-  min-width: 80px;
+  width: 100px;
   text-align: center;
   white-space: nowrap;
 `;
@@ -387,7 +388,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
                 alt="Logo"
                 style={{
                   width: '200px',
-                  height: '180px',
+                  height: '200px',
                   marginBottom: '15px',
                   display: 'block',
                   // margin: '0 auto 15px auto'
@@ -437,12 +438,12 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
         <SummarySection>
           <SummaryTable>
             <SummaryRow>
-              <SummaryLabel>الخصم</SummaryLabel>
               <SummaryValue>{invoiceData.summary.discount.toLocaleString()} {invoiceData.summary.currency}</SummaryValue>
+              <SummaryLabel>الخصم</SummaryLabel>
             </SummaryRow>
             <SummaryRow>
-              <SummaryLabel>المجموع</SummaryLabel>
               <SummaryValue>{calculateFinalTotal().toLocaleString()} {invoiceData.summary.currency}</SummaryValue>
+              <SummaryLabel>المجموع</SummaryLabel>
             </SummaryRow>
             <USDValue>{calculateUSD()} $</USDValue>
             <ExchangeRate>{invoiceData.summary.currency} سعر الصرف: {invoiceData.summary.exchangeRate.toLocaleString()}</ExchangeRate>

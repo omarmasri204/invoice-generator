@@ -3,6 +3,7 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +45,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 // File storage configuration
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -93,6 +95,45 @@ const upload = multer({
 
 // Serve static files
 app.use('/uploads', express.static(uploadsDir));
+
+// Static credentials
+const STATIC_USER = 'Omar';
+const STATIC_PASS = 'Omar-2004';
+
+// Middleware to protect routes
+function requireAuth(req, res, next) {
+  if (req.cookies && req.cookies.auth_token === 'authenticated') {
+    return next();
+  }
+  res.status(401).json({ error: 'Unauthorized' });
+}
+
+// Login endpoint
+app.post('/login', express.json(), (req, res) => {
+  const { username, password } = req.body;
+  if (username === STATIC_USER && password === STATIC_PASS) {
+    // Set HTTP-only cookie
+    res.cookie('auth_token', 'authenticated', {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: false, // Set to true if using HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+    return res.json({ success: true });
+  }
+  res.status(401).json({ error: 'Invalid credentials' });
+});
+
+// Logout endpoint
+app.post('/logout', (req, res) => {
+  res.clearCookie('auth_token');
+  res.json({ success: true });
+});
+
+// Example protected route
+app.get('/protected', requireAuth, (req, res) => {
+  res.json({ message: 'This is protected data.' });
+});
 
 // Routes
 app.post('/api/upload-logo', upload.single('logo'), (req, res) => {
