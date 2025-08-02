@@ -69,7 +69,7 @@ const defaultInvoiceData: InvoiceData = {
     name: 'MANAL CATERING',
     manager: 'منال مصري',
     logo: 'https://i.ibb.co/N2XvW6XB/manal-catering.png',
-    stamp: 'https://i.ibb.co/DHmbdq3z/Sticker-V2-1.png'
+    stamp: 'https://i.ibb.co/gLQ7Ynsm/Sticker-V2-1.png'
   },
   invoiceInfo: {
     number: '202430600',
