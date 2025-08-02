@@ -272,7 +272,8 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const calculateTotal = () => {
-    return invoiceData.services.reduce((sum, service) => sum + service.price, 0);
+    return invoiceData.services.reduce((sum, service) =>
+      sum + (service.breakfastMeals * invoiceData.summary.breakfastPrice + service.lunchMeals * invoiceData.summary.lunchPrice), 0);
   };
 
   const calculateFinalTotal = () => {
@@ -426,7 +427,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoiceData }) => {
                 <TableCell>{service.date}</TableCell>
                 <TableCell>{service.breakfastMeals}</TableCell>
                 <TableCell>{service.lunchMeals}</TableCell>
-                <TableCell>{service.price.toLocaleString()}</TableCell>
+                <TableCell>{(service.breakfastMeals * invoiceData.summary.breakfastPrice + service.lunchMeals * invoiceData.summary.lunchPrice).toLocaleString()}</TableCell>
               </tr>
             ))}
           </tbody>

@@ -77,6 +77,7 @@ const TableHeader = styled.div`
   font-weight: 600;
   border-bottom: 1px solid #e1e5e9;
   text-align: center;
+  display: flex;
 `;
 
 const TableRow = styled.div`
@@ -226,7 +227,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceData, onDataChange }) 
   };
 
   const calculateTotal = () => {
-    return invoiceData.services.reduce((sum, service) => sum + service.price, 0);
+    return invoiceData.services.reduce((sum, service) =>
+      sum + (service.breakfastMeals * invoiceData.summary.breakfastPrice + service.lunchMeals * invoiceData.summary.lunchPrice), 0);
   };
 
   const calculateFinalTotal = () => {
@@ -372,11 +374,11 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceData, onDataChange }) 
                 />
               </TableCell>
               <TableCell>
+                {/* Auto-calculate price */}
                 <NumberInput
                   type="number"
-                  value={service.price}
-                  onChange={(e) => updateService(index, 'price', parseInt(e.target.value) || 0)}
-                  min="0"
+                  value={service.breakfastMeals * invoiceData.summary.breakfastPrice + service.lunchMeals * invoiceData.summary.lunchPrice}
+                  readOnly
                 />
               </TableCell>
               <TableCell>
@@ -425,6 +427,25 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceData, onDataChange }) 
             value={invoiceData.summary.currency}
             onChange={(e) => updateField('summary', 'currency', e.target.value)}
             placeholder="العملة"
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label>سعر وجبة الفطور</Label>
+          <Input
+            type="number"
+            value={invoiceData.summary.breakfastPrice}
+            onChange={(e) => updateField('summary', 'breakfastPrice', parseInt(e.target.value) || 0)}
+            min="0"
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>سعر وجبة الغداء</Label>
+          <Input
+            type="number"
+            value={invoiceData.summary.lunchPrice}
+            onChange={(e) => updateField('summary', 'lunchPrice', parseInt(e.target.value) || 0)}
+            min="0"
           />
         </FormGroup>
 

@@ -25,6 +25,8 @@ export interface SummaryInfo {
   discount: number;
   exchangeRate: number;
   currency: string;
+  breakfastPrice: number; // price per breakfast meal
+  lunchPrice: number;     // price per lunch meal
 }
 
 export interface InvoiceData {

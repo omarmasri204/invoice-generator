@@ -113,7 +113,9 @@ const defaultInvoiceData: InvoiceData = {
   summary: {
     discount: 10000,
     exchangeRate: 10000,
-    currency: 'SYP'
+    currency: 'SYP',
+    breakfastPrice: 100000,
+    lunchPrice: 100000
   }
 };
 
